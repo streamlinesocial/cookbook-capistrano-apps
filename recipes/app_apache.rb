@@ -1,4 +1,4 @@
-include_recipe "capistrano::default"
+include_recipe "capistrano-apps::default"
 
 # unless Chef::Config[:solo]
 unless node["capistrano"]["deploy_user"].has_key?("account")

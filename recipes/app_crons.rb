@@ -1,4 +1,4 @@
-include_recipe "capistrano::app_directory"
+include_recipe "capistrano-apps::app_directory"
 
 unless Chef::Config[:solo]
     # get the data bag item of the user we deploy as
