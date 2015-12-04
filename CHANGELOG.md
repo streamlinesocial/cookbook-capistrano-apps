@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+1.2.1
+-----
+
+- work around for mysql2_chef_gem with chef >= 12.5 @see https://github.com/sinfomicien/mysql2_chef_gem/issues/5
+
 1.2.0
 -----
 

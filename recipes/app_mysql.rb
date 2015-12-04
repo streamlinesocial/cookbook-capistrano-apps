@@ -18,6 +18,7 @@ node["apps"].each do |app_name,app|
 
             # configure the mysql2 ruby gem.
             mysql2_chef_gem 'default' do
+                provider Chef::Provider::Mysql2ChefGem::Mysql
                 action :install
             end
 
