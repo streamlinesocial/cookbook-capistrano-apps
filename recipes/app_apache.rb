@@ -37,7 +37,7 @@ end
 node["apps"].each do |app_name,app|
 
     # only setfacl if apache and deploy user are not the same, not required if they are
-    unless node["apache"]["user"] == deploy_user
+    unless node["apache"]["user"] == deploy_user || app['apache']['skip_setfacl']
         # ensure that ACL is setup for apps so apache and the deploy user can both interact with
         # the files created by each other. common use case for this is symfony, it creates cache
         # files with no group write, but with acl, groups can then be set to write on it
