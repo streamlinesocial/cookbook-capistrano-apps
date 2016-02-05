@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+2.0.0
+-----
+
+    BREAKING CHANGES: Using memcached cookbook ~> 2.0.0, which changes cookbook name for config
+
 1.2.1
 -----
 
