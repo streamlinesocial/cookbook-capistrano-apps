@@ -6,3 +6,5 @@ default["capistrano"]["deploy_to_root"] = "/opt/apps"
 default["apps"] = []
 
 # default["capistrano"]["mysql_client"]["packages"] = ["mysql55"]
+
+default["capistrano"]["letsencrypt"]["cert_dir"] = "/etc/letsencrypt/live"

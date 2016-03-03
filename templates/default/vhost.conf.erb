@@ -23,10 +23,12 @@
 
         RewriteEngine On
         <% if @params[:server_is_canonical] -%>
-        # Canonical host, <%= @params[:server_name] %>
-        RewriteCond %{HTTP_HOST}   !^<%= @params[:server_name] %> [NC]
+            <% unless @params[:server_canonical_domain].empty? -%>
+        # Canonical host, <%= @params[:server_canonical_domain] %>
+        RewriteCond %{HTTP_HOST}   !^<%= @params[:server_canonical_domain] %> [NC]
         RewriteCond %{HTTP_HOST}   !^$
-        RewriteRule ^/(.*)$        http://<%= @params[:server_name] %>/$1 [L,R=301]
+        RewriteRule ^/(.*)$        <%= @params[:server_canonical_domain] %>/$1 [L,R=301]
+            <% end -%>
         <% end -%>
     </Directory>
 </VirtualHost>

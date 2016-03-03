@@ -64,6 +64,31 @@ node["apps"].each do |app_name,app|
         if app["apache"].has_key? 'vhost'
 
             vhost = app["apache"]["vhost"]
+            # document root is in the cap deploy path for the app, current symlink, and into the defined app web root
+            docroot_full = "#{node['capistrano']['deploy_to_root']}/#{app_name}/current/#{vhost['docroot']}"
+
+            # get decide if we use https or http
+            if vhost.has_key? 'canonical_protocol'
+                server_canonical_protocol = vhost['canonical_protocol']
+            else
+                server_canonical_protocol = 'http'
+            end
+
+            # build a domain that we can use as a full url
+            if vhost.has_key? 'canonical_domain'
+                server_canonical_domain = vhost['canonical_domain']
+                server_canonical_url = "#{server_canonical_protocol}://#{vhost['canonical_domain']}"
+            else
+                server_canonical_domain = vhost['canonical_domain']
+                server_canonical_url = false
+            end
+
+            # used to setup email for SSL cert validation
+            if vhost.has_key? 'letsencrypt_email'
+                letsencrypt_email = vhost['letsencrypt_email']
+            else
+                letsencrypt_email = false
+            end
 
             # create virtual host entry for apache
             web_app app_name do
@@ -80,12 +105,85 @@ node["apps"].each do |app_name,app|
                     server_port 80
                 end
 
-                # document root is in the cap deploy path for the app, current symlink, and into the defined app web root
-                docroot "#{node['capistrano']['deploy_to_root']}/#{app_name}/current/#{vhost['docroot']}"
+                docroot docroot_full
                 server_name app_name
                 server_aliases vhost['aliases']
                 server_is_canonical vhost['is_canonical']
+                server_canonical_domain server_canonical_domain
+                server_canonical_url server_canonical_url
+                server_canonical_protocol server_canonical_protocol
                 enable true
+            end
+
+            # runs only if we have been told to run letsencrypt, and if we have a letsencrypt email
+            if vhost.has_key? 'letsencrypt'
+                if vhost['letsencrypt']
+                    if letsencrypt_email
+
+                        # make sure the directory exists, as this script will probably run before the app is installed with capistrano
+                        directory docroot_full do
+                            action :create
+                            owner 'deploy'
+                            group 'deploy'
+                            recursive true
+                        end
+
+                        ssl_cert_domains = [server_canonical_domain] + vhost['aliases']
+
+                        file "#{node['capistrano']['deploy_to_root']}/#{app_name}/shared/letsencrypt.log" do
+                            content "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --email --agree-tos #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
+                            mode '0755'
+                            owner 'deploy'
+                            group 'deploy'
+                        end
+
+                        deploy 'letsencrypt' do
+                            repo 'https://github.com/letsencrypt/letsencrypt'
+                            deploy_to "#{node['capistrano']['deploy_to_root']}/letsencrypt"
+                            action :deploy
+                            purge_before_symlink []
+                            create_dirs_before_symlink []
+                            symlinks({})
+                            symlink_before_migrate({})
+                        end
+
+                        # create ssl dir for where we place certs
+                        %w{ /etc/httpd/ssl }.each do |dirname|
+                            directory dirname do
+                                action :create
+                                recursive true
+                            end
+                        end
+
+                        cert_install_dir  = "#{node["capistrano"]["letsencrypt"]["cert_dir"]}/#{server_canonical_domain}"
+
+                        execute 'install_ssl_letsencrypt' do
+                            command "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --email --agree-tos #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
+                            action :run
+                            cwd "/etc/httpd/ssl"
+                            not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
+                        end
+
+                        # copy the certs to a place we want them to be
+                        link "/etc/httpd/ssl/#{server_canonical_domain}.key" do
+                            to "#{cert_install_dir}/privkey.pem"
+                        end
+                        link "/etc/httpd/ssl/#{server_canonical_domain}.crt" do
+                            to "#{cert_install_dir}/cert.pem"
+                        end
+                        link "/etc/httpd/ssl/#{server_canonical_domain}.chain.crt" do
+                            to "#{cert_install_dir}/chain.pem"
+                        end
+
+                    else
+                        file "#{node['capistrano']['deploy_to_root']}/#{app_name}/shared/letsencrypt.log" do
+                            content 'We would NOT have run letsencrypt'
+                            mode '0755'
+                            owner 'deploy'
+                            group 'deploy'
+                        end
+                    end
+                end
             end
 
             # # note: this SSL install may need to be tweaked, but this is an example of what would need to be done

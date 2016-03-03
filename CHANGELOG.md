@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+2.1.0
+-----
+
+- Added ability to use 'letsencrypt' to generate SSL certs automatically
+
 2.0.1
 -----
 
