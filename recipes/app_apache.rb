@@ -42,16 +42,19 @@ node["apps"].each do |app_name,app|
         # the files created by each other. common use case for this is symfony, it creates cache
         # files with no group write, but with acl, groups can then be set to write on it
         #
-        # setfacl -R  -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
-        # setfacl -dR -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
+        # sudo setfacl -R  -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
+        # sudo setfacl -dR -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
+        #
+        # always run this, to ensure proper permissions
         execute "capistrano-directory-setfacl-set-initial" do
-            action :nothing
+            action :run
             command "setfacl -R -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
             subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
         end
 
+        # always run this, to ensure proper permissions
         execute "capistrano-directory-setfacl-set-default" do
-            action :nothing
+            action :run
             command "setfacl -dR -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
             subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
         end

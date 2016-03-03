@@ -1,10 +1,18 @@
 capistrano CHANGELOG
 ====================
 
+2.0.1
+-----
+
+- Fix acl apache/deploy group permissions on app directories (there were cases where the default acl's were
+  not set on the deploy dir.)
+
 2.0.0
 -----
 
-    BREAKING CHANGES: Using memcached cookbook ~> 2.0.0, which changes cookbook name for config
+BREAKING CHANGES:
+
+- Using memcached cookbook ~> 2.0.0, which changes cookbook name for config
 
 1.2.1
 -----
