@@ -158,8 +158,8 @@ node["apps"].each do |app_name,app|
                         cert_install_dir  = "#{node["capistrano"]["letsencrypt"]["cert_dir"]}/#{server_canonical_domain}"
 
                         # need to halt the web server first
-                        service "apache" do
-                            action :start, :immediately
+                        log "free port 80/443 for letsencrypt - stop apache2" do
+                            notifies :stop, 'service[apache2]', :immediately
                             not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
                         end
 
@@ -170,8 +170,8 @@ node["apps"].each do |app_name,app|
                             not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
                         end
 
-                        service "apache" do
-                            action :stop, :immediately
+                        log "ensure start apache2" do
+                            notifies :start, 'service[apache2]'
                         end
 
                         # copy the certs to a place we want them to be
