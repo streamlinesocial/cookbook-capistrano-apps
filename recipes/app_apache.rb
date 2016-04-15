@@ -164,7 +164,7 @@ node["apps"].each do |app_name,app|
                         end
 
                         execute 'install_ssl_letsencrypt' do
-                            command "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --email --agree-tos #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
+                            command "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --agree-tos --email  #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
                             action :run
                             cwd "/etc/httpd/ssl"
                             not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
