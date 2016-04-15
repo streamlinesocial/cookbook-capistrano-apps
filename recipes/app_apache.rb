@@ -131,7 +131,7 @@ node["apps"].each do |app_name,app|
                         ssl_cert_domains = [server_canonical_domain] + vhost['aliases']
 
                         file "#{node['capistrano']['deploy_to_root']}/#{app_name}/shared/letsencrypt.log" do
-                            content "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --email --agree-tos #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
+                            content "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --agree-tos --email #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
                             mode '0755'
                             owner 'deploy'
                             group 'deploy'
@@ -157,11 +157,21 @@ node["apps"].each do |app_name,app|
 
                         cert_install_dir  = "#{node["capistrano"]["letsencrypt"]["cert_dir"]}/#{server_canonical_domain}"
 
+                        # need to halt the web server first
+                        service "apache" do
+                            action :start, :immediately
+                            not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
+                        end
+
                         execute 'install_ssl_letsencrypt' do
                             command "#{node['capistrano']['deploy_to_root']}/letsencrypt/current/letsencrypt-auto certonly --standalone --email --agree-tos #{letsencrypt_email} -w #{docroot_full} -d #{ssl_cert_domains.join(' -d ')}"
                             action :run
                             cwd "/etc/httpd/ssl"
                             not_if { File.exists?("#{cert_install_dir}/fullchain.pem") }
+                        end
+
+                        service "apache" do
+                            action :stop, :immediately
                         end
 
                         # copy the certs to a place we want them to be

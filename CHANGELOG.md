@@ -1,6 +1,12 @@
 capistrano CHANGELOG
 ====================
 
+2.1.1
+-----
+
+- Fix calls to initial 'letsencrypt' email param
+- Be sure to stop apache and restart after cert creation to allow us to use the --standalone flag on port 80/443
+
 2.1.0
 -----
 
