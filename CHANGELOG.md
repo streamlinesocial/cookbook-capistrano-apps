@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+2.1.2
+-----
+
+- Lock apache2 cookbook at v7. v8 introduces breaking changes related to yum and mysql.
+
 2.1.1
 -----
 
