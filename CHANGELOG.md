@@ -1,6 +1,12 @@
 capistrano CHANGELOG
 ====================
 
+3.0.0
+-----
+
+- BREAKING CHANGE: Switch to use cookbook 'users' rather than 'user'
+- BREAKING CHANGE: Switch to use cookbook 'memcached' v3.x from v2.x
+
 2.1.2
 -----
 

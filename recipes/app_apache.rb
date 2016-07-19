@@ -1,15 +1,6 @@
 include_recipe "capistrano-apps::default"
 
-# unless Chef::Config[:solo]
-unless node["capistrano"]["deploy_user"].has_key?("account")
-    # get the data bag item of the user we deploy as
-    key = node["capistrano"]["deploy_user"]["data_bag_key"]
-    bag = node["capistrano"]["deploy_user"]["data_bag_name"]
-    u = data_bag_item(bag, key.gsub(/[.]/, '-'))
-    deploy_user = key || u['id']
-else
-    deploy_user = node["capistrano"]["deploy_user"]["account"]
-end
+deploy_user = 'deploy'
 
 # ensure apache and deploy_user are in each others groups for permissions reasons
 unless node["apache"].nil?

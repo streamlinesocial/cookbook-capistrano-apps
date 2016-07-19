@@ -9,6 +9,30 @@ Usage
 Add the use of the recipes to the node or include them via another cookbook. The recipes all
 draw their configs from a node['capistrano'] and node['apps'] attribs from the node / env.
 
+Data Bag
+========
+
+```
+knife data bag create users
+knife data bag create users deploy
+```
+
+```
+{
+  "id": "deploy",
+  "groups": [
+    "deploy",
+    "sysadmin"
+  ],
+  "home": "/home/deploy",
+  "ssh_keys": [
+    "ssh-rsa PUBLIC-KEY-HERE",
+    "ssh-rsa ANOTHER-PUBLIC-KEY-HERE..."
+  ]
+}
+
+```
+
 Node Attributes
 ===============
 
@@ -159,4 +183,54 @@ on the 'app_directory' recipe.
         "command": "php bin/phing cron:run"
     }
 },
+```
+
+Full Example
+============
+
+```
+    "apps": {
+      "appname_dev": {
+        "properties": {
+          "database.name": "db_dev",
+          "database.user": "root",
+          "database.pass": "",
+          "some.app.var": "cho",
+        },
+        "apache": {
+          "vhost": {
+            "docroot": "public/web",
+            "aliases": [
+              "app.dev",
+              "www.app.dev"
+            ],
+            "is_canonical": false,
+            "canonical_domain": "www.app.dev",
+            "cookbook": "WRAPPER-COOKBOOK-NAME",
+            "template": "file.in.wrapper.cookbook.vhost.conf.erb",
+            "canonical_url": "www.app.dev",
+            "canonical_protocol": "https"
+          }
+        },
+        "databases": {
+          "mysql": [
+            {
+              "name": "app_dev",
+              "user": "root",
+              "pass": ""
+            }
+          ],
+          "mysql_service": {
+            "server_root_password": ""
+          }
+        }
+      }
+    },
+    "apache": {
+      "server_ssl_listen_ip": "192.168.6.60",
+      "listen": [
+        "*:80",
+        "*:443"
+      ]
+    }
 ```
