@@ -1,6 +1,12 @@
 capistrano CHANGELOG
 ====================
 
+4.0.0
+-----
+
+- Major bumps in versions in dependant cookbooks
+- Added depends for cookbook yum-mysql-community (per mysql cookbook change)
+
 3.0.0
 -----
 

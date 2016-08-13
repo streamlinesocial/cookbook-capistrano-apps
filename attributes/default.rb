@@ -8,3 +8,5 @@ default["apps"] = []
 # default["capistrano"]["mysql_client"]["packages"] = ["mysql55"]
 
 default["capistrano"]["letsencrypt"]["cert_dir"] = "/etc/letsencrypt/live"
+
+default["capistrano"]["mysql"]["service_version"] = "5.6"

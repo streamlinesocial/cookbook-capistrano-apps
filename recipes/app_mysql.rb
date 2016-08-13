@@ -7,7 +7,7 @@ node["apps"].each do |app_name,app|
         if app["databases"].has_key? 'mysql_service'
             mysql_service app_name do
                 port '3306'
-                version '5.5'
+                version node["capistrano"]["mysql"]["service_version"]
                 initial_root_password app['databases']['mysql_service']['server_root_password']
                 action [:create, :start]
             end
