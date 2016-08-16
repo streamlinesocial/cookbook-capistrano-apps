@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+4.0.1
+-----
+
+- Use chef group not users\_manage to create deploy user, to avoid deleting 'apache' user from deploy group in chef runs to only add it back in the same chef run
+
 4.0.0
 -----
 

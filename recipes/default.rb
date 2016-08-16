@@ -9,11 +9,15 @@
 # another breaking change from v2.x is that we drop the ability to operate with no data bag support.
 # old version of chef-solo required us to work with no data_bags, however now we assume chef_zero or
 # chef_client, and assume that data_bags are not a problem
-#
 
-include_recipe "users"
-
-users_manage 'deploy' do
-    group_id 3000
+group 'deploy' do
     action [:create]
+    gid 3000
+    members 'deploy'
+    append true
 end
+
+# users_manage 'deploy' do
+#     group_id 3000
+#     action [:create]
+# end
