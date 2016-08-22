@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+4.0.2
+-----
+
+- Fix check for skip\_setfacl to ensure setfacl is run in more cases where it should be
+
 4.0.1
 -----
 

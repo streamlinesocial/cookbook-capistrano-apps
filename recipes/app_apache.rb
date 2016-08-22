@@ -27,31 +27,32 @@ end
 # configure the apps
 node["apps"].each do |app_name,app|
 
-    # only setfacl if apache and deploy user are not the same, not required if they are
-    unless node["apache"]["user"] == deploy_user || app['apache']['skip_setfacl']
-        # ensure that ACL is setup for apps so apache and the deploy user can both interact with
-        # the files created by each other. common use case for this is symfony, it creates cache
-        # files with no group write, but with acl, groups can then be set to write on it
-        #
-        # sudo setfacl -R  -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
-        # sudo setfacl -dR -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
-        #
-        # always run this, to ensure proper permissions
-        execute "capistrano-directory-setfacl-set-initial" do
-            action :run
-            command "setfacl -R -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
-            subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
-        end
-
-        # always run this, to ensure proper permissions
-        execute "capistrano-directory-setfacl-set-default" do
-            action :run
-            command "setfacl -dR -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
-            subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
-        end
-    end
-
     if app.has_key? 'apache'
+
+        # only setfacl if apache and deploy user are not the same, not required if they are
+        unless (node["apache"]["user"] === deploy_user) || (app['apache'].has_key? 'skip_setfacl' && app['apache']['skip_setfacl'] === true)
+            # ensure that ACL is setup for apps so apache and the deploy user can both interact with
+            # the files created by each other. common use case for this is symfony, it creates cache
+            # files with no group write, but with acl, groups can then be set to write on it
+            #
+            # sudo setfacl -R  -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
+            # sudo setfacl -dR -m u:apache:rwX -m u:deploy:rwX /opt/apps/app-name_env
+            #
+            # always run this, to ensure proper permissions
+            execute "capistrano-directory-setfacl-set-initial" do
+                action :run
+                command "setfacl -R -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
+                subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
+            end
+
+            # always run this, to ensure proper permissions
+            execute "capistrano-directory-setfacl-set-default" do
+                action :run
+                command "setfacl -dR -m u:#{node["apache"]["user"]}:rwX -m u:#{deploy_user}:rwX #{node['capistrano']['deploy_to_root']}/#{app_name}"
+                subscribes :run, "directory[#{node['capistrano']['deploy_to_root']}/#{app_name}]", :immediately
+            end
+        end
+
         if app["apache"].has_key? 'vhost'
 
             vhost = app["apache"]["vhost"]
