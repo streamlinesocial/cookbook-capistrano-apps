@@ -1,6 +1,10 @@
 include_recipe "capistrano-apps::default"
 
+# reference the deploy user variable from the attributes
 deploy_user = node['capistrano']['deploy_user']
+
+# check if our deploy user and apache user are the same
+apache_equals_deploy = node["apache"]["user"] === deploy_user
 
 # ensure apache and deploy_user are in each others groups for permissions reasons
 unless node["apache"].nil?
@@ -29,8 +33,12 @@ node["apps"].each do |app_name,app|
 
     if app.has_key? 'apache'
 
-        # only setfacl if apache and deploy user are not the same, not required if they are
-        unless (node["apache"]["user"] === deploy_user) || (app['apache'].has_key? 'skip_setfacl' && app['apache']['skip_setfacl'] === true)
+        # check if the app asks us to skip this
+        skip_setfacl = (app['apache'].has_key? 'skip_setfacl') && app['apache']['skip_setfacl'] == true
+
+        # only setfacl if apache and deploy user are not the same (we're not required if they are) and
+        # also if we've not been asked to skip that step manually
+        if !apache_equals_deploy && !skip_setfacl
             # ensure that ACL is setup for apps so apache and the deploy user can both interact with
             # the files created by each other. common use case for this is symfony, it creates cache
             # files with no group write, but with acl, groups can then be set to write on it
