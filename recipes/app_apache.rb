@@ -1,6 +1,6 @@
 include_recipe "capistrano-apps::default"
 
-deploy_user = 'deploy'
+deploy_user = node['capistrano']['deploy_user']
 
 # ensure apache and deploy_user are in each others groups for permissions reasons
 unless node["apache"].nil?

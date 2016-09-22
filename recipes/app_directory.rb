@@ -1,6 +1,6 @@
 include_recipe "capistrano-apps::default"
 
-deploy_user = 'deploy'
+deploy_user = node['capistrano']['deploy_user']
 
 # app deploy directory, e.g. /opt/apps
 directory node["capistrano"]["deploy_to_root"] do

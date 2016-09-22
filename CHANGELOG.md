@@ -1,6 +1,12 @@
 capistrano CHANGELOG
 ====================
 
+4.0.3
+-----
+
+- Add ability to override the deploy user via attribute again
+- Remove old reference to deploy user data bag
+
 4.0.2
 -----
 
