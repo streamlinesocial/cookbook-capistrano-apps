@@ -17,7 +17,8 @@ node["apps"].each do |app_name,app|
                 'day'     => '*',
                 'month'   => '*',
                 'weekday' => '*',
-                'action'  => 'create'
+                'action'  => 'create',
+                'mailto'  => ''
             }
 
             # leave 'command' out of defaults, its considered a required and we want chef to crash to indicate as such
@@ -37,6 +38,7 @@ node["apps"].each do |app_name,app|
                 month       values['month']
                 weekday     values['weekday']
                 command     values['command']
+                mailto      values['mailto']
 
                 # define the create or delete
                 case values['action']

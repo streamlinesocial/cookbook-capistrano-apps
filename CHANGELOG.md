@@ -1,6 +1,11 @@
 capistrano CHANGELOG
 ====================
 
+4.0.4
+-----
+
+- Default mailto to '' for all cron jobs
+
 4.0.3
 -----
 
